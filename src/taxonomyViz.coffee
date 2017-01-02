@@ -7,7 +7,7 @@ class taxonomyViz
 	biom = {}
 	filename = 'phinch'
 	layerNameArr = ['kingdom', 'phylum', 'class', 'order', 'family', 'genus', 'species']
-	vizNameArr = ['taxonomyBarChart', 'bubbleChart', 'sankeyDiagram', 'donutPartition', 'attributesColumn']
+	vizNameArr = ['taxonomyBarChart', 'bubbleChart', 'sankeyDiagram', 'donutPartition', 'attributesColumn', 'traitBarChart']
 
 	percentView = false
 	bubbleView = true
@@ -376,6 +376,9 @@ class taxonomyViz
 						@drawTaxonomyByAttributes(evt.currentTarget.value)
 				else 
 					alert("Attributes column chart not available for this dataset!")
+			when 6
+				@barFilterControl()
+				@drawTraitBar()
 			else
 				alert('Data is not loading correctly! ...')
 
