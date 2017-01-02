@@ -1,4 +1,5 @@
 class taxonomyViz
+	Biom = require('biojs-io-biom').Biom;
 
 	VizID = 1
 	LayerID = 2
