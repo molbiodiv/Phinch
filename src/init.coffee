@@ -74,7 +74,7 @@ class init
 		else # 2 - not from a shared url
 			$( "#GraphGallery .col3").each (index) ->
 				$(this).click () -> 
-					if(index == 5)
+					if(index > 5)
 						alert('Implementing... ');
 					else
 						$('#loadingIcon').css('opacity','1')
