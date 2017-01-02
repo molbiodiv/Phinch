@@ -333,7 +333,7 @@ class taxonomyViz
 			unique_taxonomy_comb_onLayer = unique_taxonomy_comb
 			new_data_matrix_onLayer = new_data_matrix
 
-		
+
 
 		# 2 VizID
 		@fadeInOutCtrl()
@@ -776,7 +776,7 @@ class taxonomyViz
 
 		if bubbleView
 			force = d3.layout.force()
-				.charge((d) -> return - Math.pow(d.radius,2.0) / 8)
+				.charge((d) -> return -1 * Math.pow(d.radius,2.0) / 8)
 				.nodes(nodes)
 				.on("tick", (e) -> node.attr("cx", (d) -> return d.x ).attr("cy", (d) -> return d.y ))
 				.size([200 + LayerID * 120, 160 + LayerID * 120])
@@ -1699,6 +1699,8 @@ class taxonomyViz
 					$('#MsgBox').html( "* " + unique_taxonomy_comb_count.length + " unique paths, cannot go deeper to the 6th or 7th layer.")
 				when 5 
 					$('#PercentValue,#legend_header,#count_header').fadeIn(fadeInSpeed)
+				when 6
+					$('#outline, #tags, #PercentValue, #IdNameSort, #legend_header').fadeIn(fadeInSpeed)
 		})
 
 	exportCallback: (data, textStatus, xhr) ->
