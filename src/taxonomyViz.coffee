@@ -1724,7 +1724,8 @@ class taxonomyViz
 				sorted_selected_phinchID_array[i] = phinchID_map[i].index
 
 		# 1 data preparation, get the sum of each row, i.e. one taxonomy total over all samples
-		traitValues = biomObject.getMetadata({dimension: 'rows', attribute: "Plant Life Cycle Habit"})
+		traitName = "Plant Life Cycle Habit"
+		traitValues = biomObject.getMetadata({dimension: 'rows', attribute: traitName})
 		uniqTraitValues = _.uniq(traitValues)
 		vizdata = new Array(uniqTraitValues.length)
 		sumEachTax = new Array(uniqTraitValues.length)
