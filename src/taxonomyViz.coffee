@@ -377,7 +377,7 @@ class taxonomyViz
 				else 
 					alert("Attributes column chart not available for this dataset!")
 			when 6
-				@barFilterControl()
+				@barFilterControlTrait()
 				@drawTraitBar()
 			else
 				alert('Data is not loading correctly! ...')
@@ -1931,7 +1931,7 @@ class taxonomyViz
 				viewportDragStyle: { fillStyle: 'rgba(29,119,194,0.4)'}
 			})
 
-	barFilterControl: () ->
+	barFilterControlTrait: () ->
 		if (document.addEventListener)
 			document.addEventListener('contextmenu', (e) -> e.preventDefault()
 			false)
