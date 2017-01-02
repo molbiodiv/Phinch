@@ -1730,6 +1730,13 @@ class taxonomyViz
 		sumEachTax = new Array(uniqTraitValues.length)
 		sumEachCol = new Array(selected_samples_clone.length)
 		colIDs = biomObject.columns.map( (x) -> x.id )
+		countMatrix = new Array(uniqTraitValues.length).fill().map(() -> new Array(selected_samples_clone.length).fill(0))
+		rawMatrix = biomObject.getDataMatrix()
+		for i in [0..biomObject.shape[0]-1]
+			traitIndex = uniqTraitValues.indexOf(traitValues[i])
+			rowData = rawMatrix[i]
+			for j in [0..rowData.length-1]
+				countMatrix[traitIndex][j] += rowData[j]
 
 		for i in [0..uniqTraitValues.length-1]
 			vizdata[i] = new Array(selected_samples_clone.length)
@@ -1756,8 +1763,7 @@ class taxonomyViz
 
 				# 2 delete OTU
 				if deleteOTUArr.indexOf(i) == -1 # not deleted & has value
-					counts = biomObject.getDataColumn(colIDs[selected_samples_clone[j]])
-					vizdata[i][j].y = _.sumBy(counts.map((x,ind) -> if traitValues[ind] == uniqTraitValues[i] then x else 0))
+					vizdata[i][j].y = countMatrix[i][order]
 					sumEachTax[i] += vizdata[i][j].y
 				else
 					vizdata[i][j].y = 0
