@@ -377,8 +377,36 @@ class taxonomyViz
 				else 
 					alert("Attributes column chart not available for this dataset!")
 			when 6
-				@barFilterControlTrait()
-				@drawTraitBar()
+				traits = Object.keys(biom.rows[0].metadata)
+				index = traits.indexOf('taxonomy')
+				if (index > -1)
+					traits.splice(index, 1)
+				index = traits.indexOf('fennec')
+				if (index > -1)
+					traits.splice(index, 1)
+				index = traits.indexOf('ncbi_taxid')
+				if (index > -1)
+					traits.splice(index, 1)
+				if traits.length > 1
+					if $('#trait_dropdown option').length < 1
+						for i in [0..traits.length-1]
+							$('#trait_dropdown').append('<option>' + traits[i] + '</option>');
+					if $('#trait_dropdown option:first').text() != undefined
+						@barFilterControlTrait()
+						@drawTraitBar( $('#trait_dropdown').find(":selected").text() )
+					else
+						@barFilterControlTrait()
+						@drawTraitBar( traits[0] )
+					$('#trait_dropdown').fadeIn(800)
+					$('#trait_dropdown').change (evt) =>
+						@barFilterControlTrait()
+						@drawTraitBar(evt.currentTarget.value)
+				else if groupable.length == 1
+					$('#trait_dropdown').hide()
+					@barFilterControlTrait()
+					@drawTraitBar( traits[0] )
+				else
+					alert("Trait bar chart not available for this dataset!")
 			else
 				alert('Data is not loading correctly! ...')
 
@@ -1664,9 +1692,10 @@ class taxonomyViz
 	##############################################  Bar Chart & Filter ##################################################
 	#####################################################################################################################
 
-	drawTraitBar: () ->
+	drawTraitBar: (traitName) ->
 
 		@fadeInOutCtrl()
+		console.log(traitName)
 		that = this
 		biomObject = new Biom(biom)
 		console.log(biom)
@@ -1724,7 +1753,6 @@ class taxonomyViz
 				sorted_selected_phinchID_array[i] = phinchID_map[i].index
 
 		# 1 data preparation, get the sum of each row, i.e. one taxonomy total over all samples
-		traitName = "Plant Life Cycle Habit"
 		traitValues = biomObject.getMetadata({dimension: 'rows', attribute: traitName})
 		uniqTraitValues = _.uniq(traitValues)
 		vizdata = new Array(uniqTraitValues.length)
