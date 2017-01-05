@@ -22,10 +22,14 @@ class taxonomyViz
 	new_data_matrix = []
 	selected_samples = []
 	unique_taxonomy_comb = []
+	uniqTraitValues = []
 	selected_attributes_array = []
 	columns_sample_name_array = []
 	unique_taxonomy_comb_count = []
 	selected_attributes_units_array = []
+
+	lastPlotNeedsTrait = false
+	lastTraitName = ""
 
 	vizdata = []
 	sumEachCol = []
@@ -135,7 +139,7 @@ class taxonomyViz
 								LayerID = parseInt($('.selectedLayer').length)
 								$('#valueBtn').removeClass('clicked')
 								$('#percentBtn').addClass('clicked')
-								@generateVizData()								
+								@generateVizData()
 
 						# 4 - 5 sort by ID or PhinchName 
 						$('#idBtn').click (evt) => # sort by ID 
@@ -152,7 +156,10 @@ class taxonomyViz
 								$('#idBtn').html('ID  <i class="icon-sort-amount-asc"></i>')
 								$('#nameBtn').removeClass('clicked')
 								$('#idBtn').addClass('clicked')
-							@drawTaxonomyBar()
+							if(lastPlotNeedsTrait)
+								@drawTraitBar(lastTraitName)
+							else
+								@drawTaxonomyBar()
 
 						$('#nameBtn').click (evt) =>
 							if !sortIdFlag
@@ -167,8 +174,11 @@ class taxonomyViz
 								sortDescFlag = false
 								$('#nameBtn').html('Name  <i class="icon-sort-amount-asc"></i>')
 								$('#nameBtn').addClass('clicked')
-								$('#idBtn').removeClass('clicked')			 
-							@drawTaxonomyBar()
+								$('#idBtn').removeClass('clicked')
+							if(lastPlotNeedsTrait)
+								@drawTraitBar(lastTraitName)
+							else
+								@drawTaxonomyBar()
 								
 						# 5 listView
 						$('#bubbleBtn').click (evt) =>
@@ -392,19 +402,19 @@ class taxonomyViz
 						for i in [0..traits.length-1]
 							$('#trait_dropdown').append('<option>' + traits[i] + '</option>');
 					if $('#trait_dropdown option:first').text() != undefined
-						@barFilterControlTrait()
 						@drawTraitBar( $('#trait_dropdown').find(":selected").text() )
+						@barFilterControlTrait($('#trait_dropdown').find(":selected").text())
 					else
-						@barFilterControlTrait()
 						@drawTraitBar( traits[0] )
+						@barFilterControlTrait(traits[0])
 					$('#trait_dropdown').fadeIn(800)
 					$('#trait_dropdown').change (evt) =>
-						@barFilterControlTrait()
 						@drawTraitBar(evt.currentTarget.value)
+						@barFilterControlTrait(evt.currentTarget.value)
 				else if groupable.length == 1
 					$('#trait_dropdown').hide()
-					@barFilterControlTrait()
 					@drawTraitBar( traits[0] )
+					@barFilterControlTrait(traits[0])
 				else
 					alert("Trait bar chart not available for this dataset!")
 			else
@@ -418,6 +428,7 @@ class taxonomyViz
 
 		@fadeInOutCtrl()
 		that = this
+		lastPlotNeedsTrait = false
 
 		# clone the @selected_sample array, in case delete elements from selected samples, from preview page  
 		selected_samples_clone = selected_samples.slice(0);
@@ -1698,7 +1709,9 @@ class taxonomyViz
 		console.log(traitName)
 		that = this
 		biomObject = new Biom(biom)
-		console.log(biom)
+
+		lastPlotNeedsTrait = true
+		lastTraitName = traitName
 
 		# clone the @selected_sample array, in case delete elements from selected samples, from preview page
 		selected_samples_clone = selected_samples.slice(0);
@@ -1966,7 +1979,7 @@ class taxonomyViz
 				viewportDragStyle: { fillStyle: 'rgba(29,119,194,0.4)'}
 			})
 
-	barFilterControlTrait: () ->
+	barFilterControlTrait: (traitName) ->
 		if (document.addEventListener)
 			document.addEventListener('contextmenu', (e) -> e.preventDefault()
 			false)
@@ -1976,9 +1989,7 @@ class taxonomyViz
 
 		that = this
 		searchList = []
-		availableTags = new Array(unique_taxonomy_comb_onLayer.length)
-		for i in [0..unique_taxonomy_comb_onLayer.length-1]
-			availableTags[i] = unique_taxonomy_comb_onLayer[i].join(",")
+		availableTags = uniqTraitValues
 
 		$('#tags').keydown () -> if $('#tags').val().length < 4 then $('#autoCompleteList').fadeOut(200)
 		$('#autoCompleteList').fadeOut(200);
@@ -1987,6 +1998,7 @@ class taxonomyViz
 			source: availableTags,
 			minLength: 3,
 			response: (evt, ui) ->
+				console.log(deleteOTUArr)
 				$('#autoCompleteList').html("");
 				searchList.length = 0
 				if ui.content.length > 0
@@ -1994,7 +2006,7 @@ class taxonomyViz
 						searchList.push(ui.content[i].value)
 					content = '<i class="icon-remove icon-large" style="float:right; margin: 5px 10px 0 0;" id = "iconRemover"></i><ul>'
 					for i in [0..searchList.length-1]
-						if deleteOTUArr.indexOf(i) != -1
+						if deleteOTUArr.indexOf(availableTags.indexOf(searchList[i])) != -1
 							content += '<li><span style = "display:block; background-color:#aaa; height: 12px; width: 12px; float: left; margin: 2px 0px;" ></span>&nbsp;&nbsp;'
 							content += searchList[i] + '&nbsp;&nbsp;<em id="search_' + i + '">show</em></li>'
 						else
@@ -2003,19 +2015,20 @@ class taxonomyViz
 					content += '</ul>'
 					$('#autoCompleteList').append(content)
 					$('#autoCompleteList ul li').each (index) ->
-						$(this).mouseout () -> d3.selectAll('g.taxonomy').filter((d,i) -> (i is index) ).style('fill', fillCol[index%20] )
-						$(this).mouseover () -> d3.selectAll('g.taxonomy').filter((d,i) -> (i is index) ).style('fill', d3.rgb( fillCol[index%20] ).darker() )
+						$(this).mouseout () -> d3.selectAll('g.taxonomy').filter((d,i) -> (i is availableTags.indexOf(searchList[index])) ).style('fill', fillCol[availableTags.indexOf(searchList[index])%20] )
+						$(this).mouseover () -> d3.selectAll('g.taxonomy').filter((d,i) -> (i is availableTags.indexOf(searchList[index])) ).style('fill', d3.rgb( fillCol[availableTags.indexOf(searchList[index])%20] ).darker() )
 
 						$(this).click () ->
+							console.log($(this))
 							if $('#search_' + index).html() == 'hide'
 								$('#search_' + index).html('show')
 								$(this).find('span').css('background-color', '#aaa').css('color', '#aaa')
-								deleteOTUArr.push( index )
+								deleteOTUArr.push( availableTags.indexOf(searchList[index]) )
 							else
 								$('#search_' + index).html('hide')
-								$(this).find('span').css('background-color', fillCol[index%20] ).css('color', '#000')
-								deleteOTUArr.splice( deleteOTUArr.indexOf(index), 1)
-							that.drawTaxonomyBar()
+								$(this).find('span').css('background-color', fillCol[availableTags.indexOf(searchList[index])%20] ).css('color', '#000')
+								deleteOTUArr.splice( deleteOTUArr.indexOf(availableTags.indexOf(searchList[index])), 1)
+							that.drawTraitBar(traitName)
 
 					$('#iconRemover').click () -> $('#autoCompleteList').fadeOut(200)
 					$('#autoCompleteList').show()
