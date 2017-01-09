@@ -84,7 +84,7 @@ class taxonomyViz
 				).done (s) => 
 					s.biom.query().all().execute().done (results) =>
 						currentData = results[results.length-1]
-						biom = JSON.parse(currentData.data)
+						biom = new Biom(JSON.parse(currentData.data))
 						filename = currentData.name
 						filename = filename.substring(0,filename.length-5)
 
@@ -1708,7 +1708,6 @@ class taxonomyViz
 		@fadeInOutCtrl()
 		console.log(traitName)
 		that = this
-		biomObject = new Biom(biom)
 
 		lastPlotNeedsTrait = true
 		lastTraitName = traitName
@@ -1766,15 +1765,15 @@ class taxonomyViz
 				sorted_selected_phinchID_array[i] = phinchID_map[i].index
 
 		# 1 data preparation, get the sum of each row, i.e. one taxonomy total over all samples
-		traitValues = biomObject.getMetadata({dimension: 'rows', attribute: traitName})
+		traitValues = biom.getMetadata({dimension: 'rows', attribute: traitName})
 		uniqTraitValues = _.uniq(traitValues)
 		vizdata = new Array(uniqTraitValues.length)
 		sumEachTax = new Array(uniqTraitValues.length)
 		sumEachCol = new Array(selected_samples_clone.length)
-		colIDs = biomObject.columns.map( (x) -> x.id )
+		colIDs = biom.columns.map( (x) -> x.id )
 		countMatrix = new Array(uniqTraitValues.length).fill().map(() -> new Array(selected_samples_clone.length).fill(0))
-		rawMatrix = biomObject.getDataMatrix()
-		for i in [0..biomObject.shape[0]-1]
+		rawMatrix = biom.getDataMatrix()
+		for i in [0..biom.shape[0]-1]
 			traitIndex = uniqTraitValues.indexOf(traitValues[i])
 			rowData = rawMatrix[i]
 			for j in [0..rowData.length-1]
