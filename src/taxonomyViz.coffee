@@ -354,9 +354,9 @@ class taxonomyViz
 		# 2 VizID
 		@fadeInOutCtrl()
 		switch VizID
-			when 1 
-				@barFilterControl()
-				@drawTaxonomyBar()
+			when 1
+				@barFilterControlTrait(lastTraitName)
+				@drawTraitBar(lastTraitName)
 			when 2
 				@calculateOTUonLayer()
 				@bubbleFilterControl()
@@ -392,37 +392,6 @@ class taxonomyViz
 						@drawTaxonomyByAttributes(evt.currentTarget.value)
 				else 
 					alert("Attributes column chart not available for this dataset!")
-			when 6
-				traits = Object.keys(biom.rows[0].metadata)
-				index = traits.indexOf('taxonomy')
-				if (index > -1)
-					traits.splice(index, 1)
-				index = traits.indexOf('fennec')
-				if (index > -1)
-					traits.splice(index, 1)
-				index = traits.indexOf('ncbi_taxid')
-				if (index > -1)
-					traits.splice(index, 1)
-				if traits.length > 1
-					if $('#trait_dropdown option').length < 1
-						for i in [0..traits.length-1]
-							$('#trait_dropdown').append('<option>' + traits[i] + '</option>');
-					if $('#trait_dropdown option:first').text() != undefined
-						@drawTraitBar( $('#trait_dropdown').find(":selected").text() )
-						@barFilterControlTrait($('#trait_dropdown').find(":selected").text())
-					else
-						@drawTraitBar( traits[0] )
-						@barFilterControlTrait(traits[0])
-					$('#trait_dropdown').fadeIn(800)
-					$('#trait_dropdown').change (evt) =>
-						@drawTraitBar(evt.currentTarget.value)
-						@barFilterControlTrait(evt.currentTarget.value)
-				else if groupable.length == 1
-					$('#trait_dropdown').hide()
-					@drawTraitBar( traits[0] )
-					@barFilterControlTrait(traits[0])
-				else
-					alert("Trait bar chart not available for this dataset!")
 			else
 				alert('Data is not loading correctly! ...')
 
@@ -470,7 +439,7 @@ class taxonomyViz
 					for k in [0..deleteSampleArr.length-1]
 						updateContent += '<li>Sample ' + deleteSampleArr[k] + ', ' + selected_phinchID_array[selected_samples.indexOf(deleteSampleArr[k])] + '<span id = "delete_' + deleteSampleArr[k] + '">show</span></li>'
 					d3.select('#deleteSampleArr ul').html(updateContent)					
-					that.drawTraitBar('taxonomy')
+					that.drawTraitBar(lastTraitName)
 
 					
 		# 2 sort the selected phinchID array
@@ -598,7 +567,7 @@ class taxonomyViz
 				delePanel.html('<div class="hideSample">HIDE SAMPLE</div>').style( { "visibility": "visible", top: (d3.event.pageY + 15) + "px", left: (d3.event.pageX - 15) + "px" })
 				$('.hideSample').click () ->
 					deleteSampleArr.push(d.bioColInd)
-					that.drawTraitBar('taxonomy')
+					that.drawTraitBar(lastTraitName)
 
 		# 6 add y-axis
 		label = svg.append('g').selectAll('text')
@@ -740,7 +709,7 @@ class taxonomyViz
 								$('#search_' + index).html('hide') 
 								$(this).find('span').css('background-color', fillCol[availableTags.indexOf(searchList[index])%20] ).css('color', '#000')
 								deleteOTUArr.splice( deleteOTUArr.indexOf(availableTags.indexOf(searchList[index])), 1)
-							that.drawTraitBar('taxonomy')
+							that.drawTraitBar(lastTraitName)
 
 					$('#iconRemover').click () -> $('#autoCompleteList').fadeOut(200)
 					$('#autoCompleteList').show()
@@ -1986,6 +1955,8 @@ class taxonomyViz
 			})
 
 	barFilterControlTrait: (traitName) ->
+		if(traitName.toLowerCase() == 'taxonomy')
+			return @barFilterControl()
 		if (document.addEventListener)
 			document.addEventListener('contextmenu', (e) -> e.preventDefault()
 			false)
