@@ -1,4 +1,5 @@
 class taxonomyViz
+	DISTINCT_TRAIT_VALUE_CUTOFF = 1000
 	Biom = require('biojs-io-biom').Biom;
 
 	VizID = 1
@@ -13,7 +14,7 @@ class taxonomyViz
 	bubbleView = true
 	shareFlag = false
 	sortIdFlag = false
-	sortDescFlag = false 
+	sortDescFlag = false
 	standardizedValue = 0
 	format = d3.format(',d')
 
@@ -28,8 +29,7 @@ class taxonomyViz
 	unique_taxonomy_comb_count = []
 	selected_attributes_units_array = []
 
-	lastPlotNeedsTrait = false
-	lastTraitName = ""
+	lastTraitName = 'taxonomy'
 
 	vizdata = []
 	sumEachCol = []
@@ -156,10 +156,7 @@ class taxonomyViz
 								$('#idBtn').html('ID  <i class="icon-sort-amount-asc"></i>')
 								$('#nameBtn').removeClass('clicked')
 								$('#idBtn').addClass('clicked')
-							if(lastPlotNeedsTrait)
-								@drawTraitBar(lastTraitName)
-							else
-								@drawTaxonomyBar()
+							@drawTraitBar(lastTraitName)
 
 						$('#nameBtn').click (evt) =>
 							if !sortIdFlag
@@ -175,10 +172,7 @@ class taxonomyViz
 								$('#nameBtn').html('Name  <i class="icon-sort-amount-asc"></i>')
 								$('#nameBtn').addClass('clicked')
 								$('#idBtn').removeClass('clicked')
-							if(lastPlotNeedsTrait)
-								@drawTraitBar(lastTraitName)
-							else
-								@drawTaxonomyBar()
+							@drawTraitBar(lastTraitName)
 								
 						# 5 listView
 						$('#bubbleBtn').click (evt) =>
@@ -242,6 +236,18 @@ class taxonomyViz
 
 						# 9 share
 						$('#share').click( @shareViz )
+						
+						# 10 trait selection box
+						traits = Object.keys(biom.rows[0].metadata)
+						for i in [0..traits.length-1]
+							traitValues = biom.getMetadata({dimension: 'rows', attribute: traits[i]})
+							# Exclude fields with too many uniq values - arbitrary cutoff
+							if(traits[i].toLowerCase() == 'taxonomy' || _.uniqBy(traitValues).length <= DISTINCT_TRAIT_VALUE_CUTOFF)
+								$('#trait_dropdown').append('<option>' + traits[i] + '</option>')
+						$('#trait_dropdown').val('taxonomy')
+						$('#trait_dropdown').change (evt) =>
+							lastTraitName = evt.currentTarget.value
+							@generateVizData()
 
 						# 10 generate 
 						@prepareData()
@@ -428,7 +434,6 @@ class taxonomyViz
 
 		@fadeInOutCtrl()
 		that = this
-		lastPlotNeedsTrait = false
 
 		# clone the @selected_sample array, in case delete elements from selected samples, from preview page  
 		selected_samples_clone = selected_samples.slice(0);
@@ -465,7 +470,7 @@ class taxonomyViz
 					for k in [0..deleteSampleArr.length-1]
 						updateContent += '<li>Sample ' + deleteSampleArr[k] + ', ' + selected_phinchID_array[selected_samples.indexOf(deleteSampleArr[k])] + '<span id = "delete_' + deleteSampleArr[k] + '">show</span></li>'
 					d3.select('#deleteSampleArr ul').html(updateContent)					
-					that.drawTaxonomyBar()
+					that.drawTraitBar('taxonomy')
 
 					
 		# 2 sort the selected phinchID array
@@ -593,7 +598,7 @@ class taxonomyViz
 				delePanel.html('<div class="hideSample">HIDE SAMPLE</div>').style( { "visibility": "visible", top: (d3.event.pageY + 15) + "px", left: (d3.event.pageX - 15) + "px" })
 				$('.hideSample').click () ->
 					deleteSampleArr.push(d.bioColInd)
-					that.drawTaxonomyBar()
+					that.drawTraitBar('taxonomy')
 
 		# 6 add y-axis
 		label = svg.append('g').selectAll('text')
@@ -735,7 +740,7 @@ class taxonomyViz
 								$('#search_' + index).html('hide') 
 								$(this).find('span').css('background-color', fillCol[availableTags.indexOf(searchList[index])%20] ).css('color', '#000')
 								deleteOTUArr.splice( deleteOTUArr.indexOf(availableTags.indexOf(searchList[index])), 1)
-							that.drawTaxonomyBar()
+							that.drawTraitBar('taxonomy')
 
 					$('#iconRemover').click () -> $('#autoCompleteList').fadeOut(200)
 					$('#autoCompleteList').show()
@@ -1705,12 +1710,14 @@ class taxonomyViz
 
 	drawTraitBar: (traitName) ->
 
-		@fadeInOutCtrl()
-		console.log(traitName)
-		that = this
-
-		lastPlotNeedsTrait = true
 		lastTraitName = traitName
+
+		if traitName.toLowerCase() == 'taxonomy'
+			@barFilterControl()
+			return @drawTaxonomyBar()
+
+		@fadeInOutCtrl()
+		that = this
 
 		# clone the @selected_sample array, in case delete elements from selected samples, from preview page
 		selected_samples_clone = selected_samples.slice(0);
@@ -1747,7 +1754,7 @@ class taxonomyViz
 					for k in [0..deleteSampleArr.length-1]
 						updateContent += '<li>Sample ' + deleteSampleArr[k] + ', ' + selected_phinchID_array[selected_samples.indexOf(deleteSampleArr[k])] + '<span id = "delete_' + deleteSampleArr[k] + '">show</span></li>'
 					d3.select('#deleteSampleArr ul').html(updateContent)
-					that.drawTaxonomyBar()
+					that.drawTraitBar(lastTraitName)
 
 
 		# 2 sort the selected phinchID array
@@ -1885,7 +1892,7 @@ class taxonomyViz
 				delePanel.html('<div class="hideSample">HIDE SAMPLE</div>').style( { "visibility": "visible", top: (d3.event.pageY + 15) + "px", left: (d3.event.pageX - 15) + "px" })
 				$('.hideSample').click () ->
 					deleteSampleArr.push(d.bioColInd)
-					that.drawTaxonomyBar()
+					that.drawTraitBar(lastTraitName)
 
 		# 6 add y-axis
 		label = svg.append('g').selectAll('text')
@@ -2063,6 +2070,7 @@ class taxonomyViz
 		$('#loadingIcon').animate( {opacity: 0}, {duration: fadeInSpeed, specialEasing: {width: "easeInOutQuad"}, complete: () ->
 			$('#taxonomy_container').animate( {opacity: 1}, {duration: fadeInSpeed} )
 			$('#layerSwitch').fadeIn(fadeInSpeed)
+			$('#trait_dropdown').fadeIn(fadeInSpeed)
 
 			switch VizID
 				when 1
