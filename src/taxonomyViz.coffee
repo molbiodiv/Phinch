@@ -1682,10 +1682,6 @@ class taxonomyViz
 
 		lastTraitName = traitName
 
-		if traitName.toLowerCase() == 'taxonomy'
-			@barFilterControl()
-			return @drawTaxonomyBar()
-
 		@fadeInOutCtrl()
 		that = this
 
@@ -1742,19 +1738,10 @@ class taxonomyViz
 				sorted_selected_phinchID_array[i] = phinchID_map[i].index
 
 		# 1 data preparation, get the sum of each row, i.e. one taxonomy total over all samples
-		traitValues = biom.getMetadata({dimension: 'rows', attribute: traitName})
-		uniqTraitValues = _.uniq(traitValues)
+		{ uniqTraitValues, countMatrix } = @getTraitValuesAndCountMatrix(traitName)
 		vizdata = new Array(uniqTraitValues.length)
 		sumEachTax = new Array(uniqTraitValues.length)
 		sumEachCol = new Array(selected_samples_clone.length)
-		colIDs = biom.columns.map( (x) -> x.id )
-		countMatrix = new Array(uniqTraitValues.length).fill().map(() -> new Array(selected_samples_clone.length).fill(0))
-		rawMatrix = biom.getDataMatrix()
-		for i in [0..biom.shape[0]-1]
-			traitIndex = uniqTraitValues.indexOf(traitValues[i])
-			rowData = rawMatrix[i]
-			for j in [0..rowData.length-1]
-				countMatrix[traitIndex][j] += rowData[j]
 
 		for i in [0..uniqTraitValues.length-1]
 			vizdata[i] = new Array(selected_samples_clone.length)
@@ -2018,7 +2005,27 @@ class taxonomyViz
 
   #####################################################################################################################
 	###############################################   UTILITIES   #######################################################  
-	#####################################################################################################################  
+	#####################################################################################################################
+
+	getTraitValuesAndCountMatrix: (traitName) ->
+		# use _ prefix to avoid clash with global variable
+		_uniqTraitValues = []
+		countMatrix = []
+		if(traitName.toLowerCase() == 'taxonomy')
+			_uniqTraitValues = unique_taxonomy_comb_onLayer.map( (value) -> value.join(','))
+			countMatrix = new_data_matrix_onLayer
+		else
+			selected_samples_clone = selected_samples.slice(0);
+			traitValues = biom.getMetadata({dimension: 'rows', attribute: traitName})
+			_uniqTraitValues = _.uniq(traitValues)
+			countMatrix = new Array(_uniqTraitValues.length).fill().map(() -> new Array(selected_samples_clone.length).fill(0))
+			rawMatrix = biom.getDataMatrix()
+			for i in [0..biom.shape[0]-1]
+				traitIndex = _uniqTraitValues.indexOf(traitValues[i])
+				rowData = rawMatrix[i]
+				for j in [0..rowData.length-1]
+					countMatrix[traitIndex][j] += rowData[j]
+		return {'uniqTraitValues': _uniqTraitValues, 'countMatrix': countMatrix}
 
 	createLegend: (legendArr) ->
 		legendArr.sort( (a,b) -> return b.value - a.value ) # specify the sorting order
