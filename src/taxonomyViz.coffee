@@ -357,7 +357,7 @@ class taxonomyViz
 		switch VizID
 			when 1
 				@drawTraitBar(lastTraitName)
-				@barFilterControlTrait()
+				@barFilterControl()
 			when 2
 				@calculateOTUonLayer()
 				@bubbleFilterControl()
@@ -664,7 +664,7 @@ class taxonomyViz
 				viewportDragStyle: { fillStyle: 'rgba(29,119,194,0.4)'}
 			})
 
-	barFilterControlTrait: () ->
+	barFilterControl: () ->
 		if (document.addEventListener)
 			document.addEventListener('contextmenu', (e) -> e.preventDefault()
 			false)
