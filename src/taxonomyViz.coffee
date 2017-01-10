@@ -1218,15 +1218,17 @@ class taxonomyViz
 		for i in [0..groupable_array.length-1]
 			count[i] = []
 
-		selected_new_data_matrix_onLayer = new Array(new_data_matrix_onLayer.length) # only contains selected samples 
-		for i in [0..new_data_matrix_onLayer.length-1]  # layer 2 - 68 
+		{ uniqTraitValues, countMatrix } = @getTraitValuesAndCountMatrix(lastTraitName)
+
+		selected_new_data_matrix_onLayer = new Array(uniqTraitValues.length) # only contains selected samples
+		for i in [0..uniqTraitValues.length-1]  # layer 2 - 68
 			# 1 store only selected data
 			selected_new_data_matrix_onLayer[i] = new Array(groupable_array.length)
 			for j in [0..groupable_array.length-1]
 				selected_new_data_matrix_onLayer[i][j] = 0
 			for j in [0..selected_samples.length-1]
 				arr_id = groupable_array.indexOf( biom.columns[j].metadata[ cur_attribute ] )
-				selected_new_data_matrix_onLayer[i][arr_id] += new_data_matrix_onLayer[i][j] 
+				selected_new_data_matrix_onLayer[i][arr_id] += countMatrix[i][j]
 
 		# 2 store the sample IDs in the count 2D array 
 		for i in [0..selected_samples.length-1]
@@ -1299,7 +1301,7 @@ class taxonomyViz
 				d3.selectAll('g.arc_' + donutID).style 'opacity', (d,i) -> if i != index then return 0.5
 				content = ''
 				content += '<img class="PanelImg" src="css/images/tooltip.png">'
-				content += '<div class="PanelHead">TAXONOMY: </br><em>' + unique_taxonomy_comb_onLayer[index].join(",") + '</em><br/>' 
+				content += '<div class="PanelHead">TAXONOMY: </br><em>' + uniqTraitValues[index] + '</em><br/>'
 				content += '<div class= "PanelHalf">TOTAL READS:<br/><span>' + format(d.data) + '</span></div><div class= "PanelHalf">PERCENTAGE:<br/><span>' + ((d.endAngle - d.startAngle) / 2 / Math.PI * 100).toFixed(1) + '%</span></div></div>'
 				content += '<br/><br/>'
 				infoPanel.html(content)
@@ -1349,17 +1351,17 @@ class taxonomyViz
 		rectArr = new Array(containedSamp.length)
 		for i in [0..containedSamp.length-1]
 			rectArr[i] = 0
-			if totalFlag # draw total 
-				for j in [0..new_data_matrix_onLayer.length-1]
-					rectArr[i] += new_data_matrix_onLayer[j][containedSamp[i]]
+			if totalFlag # draw total
+				for j in [0..countMatrix.length-1]
+					rectArr[i] += countMatrix[j][containedSamp[i]]
 			else # draw one taxonomy 
-				rectArr[i] += new_data_matrix_onLayer[selectedTaxnomy][containedSamp[i]]
+				rectArr[i] += countMatrix[selectedTaxnomy][containedSamp[i]]
 
 		# 2 add info 
 		if totalFlag
-			d3.select('#containedTaxonomy_' + donutID).html( unique_taxonomy_comb_onLayer.length + ' Taxonomy in Total')
+			d3.select('#containedTaxonomy_' + donutID).html( uniqTraitValues.length + ' Taxonomy in Total')
 		else
-			thisTaxonomyName = unique_taxonomy_comb_onLayer[selectedTaxnomy].join(",")
+			thisTaxonomyName = uniqTraitValues[selectedTaxnomy]
 			content = ''
 			for i in [0..thisTaxonomyName.length % 35] # 35 characters in a row
 				content += '<tspan x="-100" dy="1.2em">' + thisTaxonomyName.substring(i * 35, (i + 1) * 35 )+ '</tspan>'
