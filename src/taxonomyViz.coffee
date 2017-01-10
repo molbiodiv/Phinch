@@ -247,6 +247,7 @@ class taxonomyViz
 						$('#trait_dropdown').val('taxonomy')
 						$('#trait_dropdown').change (evt) =>
 							lastTraitName = evt.currentTarget.value
+							deleteOTUArr = []
 							@generateVizData()
 
 						# 10 generate 
@@ -355,8 +356,8 @@ class taxonomyViz
 		@fadeInOutCtrl()
 		switch VizID
 			when 1
-				@barFilterControlTrait(lastTraitName)
 				@drawTraitBar(lastTraitName)
+				@barFilterControlTrait(lastTraitName)
 			when 2
 				@calculateOTUonLayer()
 				@bubbleFilterControl()
