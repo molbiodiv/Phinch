@@ -39,6 +39,7 @@ class taxonomyViz
 	deleteSampleArr = []
 	selected_phinchID_array = []
 
+	countMatrix = []
 	new_data_matrix_onLayer = []
 	unique_taxonomy_comb_onLayer = []
 	taxonomy_comb_count_onLayer = []
@@ -1684,22 +1685,22 @@ class taxonomyViz
 	getTraitValuesAndCountMatrix: (traitName) ->
 		# use _ prefix to avoid clash with global variable
 		_uniqTraitValues = []
-		countMatrix = []
+		_countMatrix = []
 		if(traitName.toLowerCase() == 'taxonomy')
 			_uniqTraitValues = unique_taxonomy_comb_onLayer.map( (value) -> value.join(','))
-			countMatrix = new_data_matrix_onLayer
+			_countMatrix = new_data_matrix_onLayer
 		else
 			selected_samples_clone = selected_samples.slice(0);
 			traitValues = biom.getMetadata({dimension: 'rows', attribute: traitName})
 			_uniqTraitValues = _.uniq(traitValues)
-			countMatrix = new Array(_uniqTraitValues.length).fill().map(() -> new Array(selected_samples_clone.length).fill(0))
+			_countMatrix = new Array(_uniqTraitValues.length).fill().map(() -> new Array(selected_samples_clone.length).fill(0))
 			rawMatrix = biom.getDataMatrix()
 			for i in [0..biom.shape[0]-1]
 				traitIndex = _uniqTraitValues.indexOf(traitValues[i])
 				rowData = rawMatrix[i]
 				for j in [0..rowData.length-1]
-					countMatrix[traitIndex][j] += rowData[j]
-		return {'uniqTraitValues': _uniqTraitValues, 'countMatrix': countMatrix}
+					_countMatrix[traitIndex][j] += rowData[j]
+		return {'uniqTraitValues': _uniqTraitValues, 'countMatrix': _countMatrix}
 
 	createLegend: (legendArr) ->
 		legendArr.sort( (a,b) -> return b.value - a.value ) # specify the sorting order
