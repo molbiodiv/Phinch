@@ -357,7 +357,7 @@ class taxonomyViz
 		switch VizID
 			when 1
 				@drawTraitBar(lastTraitName)
-				@barFilterControlTrait(lastTraitName)
+				@barFilterControlTrait()
 			when 2
 				@calculateOTUonLayer()
 				@bubbleFilterControl()
@@ -400,63 +400,7 @@ class taxonomyViz
 	##############################################  Bar Chart & Filter ##################################################  
 	#####################################################################################################################  
 
-	barFilterControl: () ->
-		if (document.addEventListener)
-			document.addEventListener('contextmenu', (e) -> e.preventDefault()
-			false)
-		else 
-			document.addEventListener('oncontextmenu', (e) -> window.event.returnValue = false
-			false)
-
-		that = this 
-		searchList = []
-		availableTags = new Array(unique_taxonomy_comb_onLayer.length)
-		for i in [0..unique_taxonomy_comb_onLayer.length-1]
-			availableTags[i] = unique_taxonomy_comb_onLayer[i].join(",")
-
-		$('#tags').keydown () -> if $('#tags').val().length < 4 then $('#autoCompleteList').fadeOut(200)
-		$('#autoCompleteList').fadeOut(200);
-
-		$( "#tags" ).autocomplete({ 
-			source: availableTags,
-			minLength: 3,
-			response: (evt, ui) ->
-				$('#autoCompleteList').html("");
-				searchList.length = 0
-				if ui.content.length > 0
-					for i in [0..ui.content.length-1]
-						searchList.push(ui.content[i].value)
-					content = '<i class="icon-remove icon-large" style="float:right; margin: 5px 10px 0 0;" id = "iconRemover"></i><ul>'
-					for i in [0..searchList.length-1]
-						if deleteOTUArr.indexOf(availableTags.indexOf(searchList[i])) != -1
-							content += '<li><span style = "display:block; background-color:#aaa; height: 12px; width: 12px; float: left; margin: 2px 0px;" ></span>&nbsp;&nbsp;'
-							content += searchList[i] + '&nbsp;&nbsp;<em id="search_' + i + '">show</em></li>'
-						else
-							content += '<li><span style = "display:block; background-color:' + fillCol[ availableTags.indexOf(searchList[i]) % 20] + '; height: 12px; width: 12px; float: left; margin: 2px 0px;" ></span>&nbsp;&nbsp;'
-							content += searchList[i] + '&nbsp;&nbsp;<em id="search_' + i + '">hide</em></li>'
-					content += '</ul>'
-					$('#autoCompleteList').append(content)
-					$('#autoCompleteList ul li').each (index) ->
-						$(this).mouseout () -> d3.selectAll('g.taxonomy').filter((d,i) -> (i is availableTags.indexOf(searchList[index])) ).style('fill', fillCol[availableTags.indexOf(searchList[index])%20] )
-						$(this).mouseover () -> d3.selectAll('g.taxonomy').filter((d,i) -> (i is availableTags.indexOf(searchList[index])) ).style('fill', d3.rgb( fillCol[availableTags.indexOf(searchList[index])%20] ).darker() )
-
-						$(this).click () ->
-							if $('#search_' + index).html() == 'hide'
-								$('#search_' + index).html('show') 
-								$(this).find('span').css('background-color', '#aaa').css('color', '#aaa')
-								deleteOTUArr.push( availableTags.indexOf(searchList[index]) )
-							else
-								$('#search_' + index).html('hide') 
-								$(this).find('span').css('background-color', fillCol[availableTags.indexOf(searchList[index])%20] ).css('color', '#000')
-								deleteOTUArr.splice( deleteOTUArr.indexOf(availableTags.indexOf(searchList[index])), 1)
-							that.drawTraitBar(lastTraitName)
-
-					$('#iconRemover').click () -> $('#autoCompleteList').fadeOut(200)
-					$('#autoCompleteList').show()
-				else
-					$('#autoCompleteList').html("")
-					$('#autoCompleteList').hide()
-		})
+	
 
 	#####################################################################################################################         
 	##############################################  Bubble Chart  #######################################################         
@@ -1681,9 +1625,7 @@ class taxonomyViz
 				viewportDragStyle: { fillStyle: 'rgba(29,119,194,0.4)'}
 			})
 
-	barFilterControlTrait: (traitName) ->
-		if(traitName.toLowerCase() == 'taxonomy')
-			return @barFilterControl()
+	barFilterControlTrait: () ->
 		if (document.addEventListener)
 			document.addEventListener('contextmenu', (e) -> e.preventDefault()
 			false)
@@ -1732,7 +1674,7 @@ class taxonomyViz
 								$('#search_' + index).html('hide')
 								$(this).find('span').css('background-color', fillCol[availableTags.indexOf(searchList[index])%20] ).css('color', '#000')
 								deleteOTUArr.splice( deleteOTUArr.indexOf(availableTags.indexOf(searchList[index])), 1)
-							that.drawTraitBar(traitName)
+							that.drawTraitBar(lastTraitName)
 
 					$('#iconRemover').click () -> $('#autoCompleteList').fadeOut(200)
 					$('#autoCompleteList').show()
