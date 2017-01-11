@@ -1399,7 +1399,8 @@ class taxonomyViz
 
 		$('#taxonomy_container').html("")
 		$('#attributes_dropdown').fadeIn(200)
-		selected_new_data_matrix_onLayer = new Array(new_data_matrix_onLayer.length) # only contains selected samples
+		{ uniqTraitValues, countMatrix } = @getTraitValuesAndCountMatrix(lastTraitName)
+		selected_new_data_matrix_onLayer = new Array(countMatrix.length) # only contains selected samples
 
 		# 1 find all different values
 		attributes_array = []
@@ -1413,14 +1414,14 @@ class taxonomyViz
 		for i in [0..attributes_array.length-1]
 			count[i] = []
 		
-		for i in [0..new_data_matrix_onLayer.length-1]  # layer 2 - 68 
+		for i in [0..countMatrix.length-1]  # layer 2 - 68
 			# 1 store only selected data
 			selected_new_data_matrix_onLayer[i] = new Array(attributes_array.length)
 			for j in [0..attributes_array.length-1]
 				selected_new_data_matrix_onLayer[i][j] = 0.0
 			for j in [0..selected_samples.length-1]
 				arr_id = attributes_array.indexOf( parseFloat( biom.columns[j].metadata[cur_attribute].split(" ")[0]) )
-				selected_new_data_matrix_onLayer[i][arr_id] += new_data_matrix_onLayer[i][j] 
+				selected_new_data_matrix_onLayer[i][arr_id] += countMatrix[i][j]
 
 		for i in [0..selected_samples.length-1]
 			if ! isNaN( parseFloat( biom.columns[ i ].metadata[cur_attribute].split(" ")[0]) )
@@ -1435,7 +1436,7 @@ class taxonomyViz
 		for i in [0..selected_new_data_matrix_onLayer.length-1] # # layer 2 - 68 
 			vizdata[i] = new Array(attributes_array.length)
 			for j in [0..attributes_array.length-1]
-				vizdata[i][j] = {x: j, y: selected_new_data_matrix_onLayer[i][j], name: unique_taxonomy_comb_onLayer[i].join(","), y0: 0}
+				vizdata[i][j] = {x: j, y: selected_new_data_matrix_onLayer[i][j], name: uniqTraitValues[i], y0: 0}
 
 		for i in [0..attributes_array.length-1]
 			sumEachCol[i] = 0
@@ -1473,7 +1474,7 @@ class taxonomyViz
 		# create legend 
 		legendArr = []
 		for i in [0..selected_new_data_matrix_onLayer.length-1]
-			temp = {'originalID': i, 'value': 0, 'name': unique_taxonomy_comb_onLayer[i].join(",")}
+			temp = {'originalID': i, 'value': 0, 'name': uniqTraitValues[i]}
 			for j in [0..selected_new_data_matrix_onLayer[0].length-1]
 				temp.value += selected_new_data_matrix_onLayer[i][j]
 			legendArr.push(temp)
@@ -1739,6 +1740,7 @@ class taxonomyViz
 					$('.ui-slider-horizontal .ui-slider-handle').css({ "margin-top": "-2px", "border": "none","background": "#241F20"})
 				when 3
 					$('#tags').fadeIn(fadeInSpeed)
+					$('#trait_dropdown').hide()
 					$('#MsgBox').html( "* " + unique_taxonomy_comb_count.length + " unique paths, cannot go deeper to the 6th or 7th layer.")
 				when 5 
 					$('#PercentValue,#legend_header,#count_header').fadeIn(fadeInSpeed)
