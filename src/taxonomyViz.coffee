@@ -809,7 +809,7 @@ class taxonomyViz
 					nodes[i].x = 50 + nodes[i].radius 
 					nodes[i].y += 40 + nodes[i].radius + maxRowHeight
 					maxRowHeight = nodes[i].radius
-			svg.attr("height", nodes[nodes.length-1].y + 50 ) # update canvas size
+			svg.attr("height", nodes[nodes.length-1].y + 50 + margin.top) # update canvas size
 
 		node = svg.selectAll(".node").data(nodes)
 			.enter().append("circle")
