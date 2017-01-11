@@ -42,7 +42,6 @@ class taxonomyViz
 	countMatrix = []
 	new_data_matrix_onLayer = []
 	unique_taxonomy_comb_onLayer = []
-	taxonomy_comb_count_onLayer = []
 
 	phinchCol_0 = ['#3182bd','#6baed6','#9ecae1','#c6dbef','#e6550d','#fd8d3c','#fdae6b','#fdd0a2','#31a354','#74c476','#a1d99b','#c7e9c0','#756bb1','#9e9ac8','#bcbddc','#dadaeb','#636363','#969696','#bdbdbd','#d9d9d9']
 	phinchCol_1 = ['#ab80b6','#b07c83','#b3c4db','#3e3994','#583c9e','#8c3c9e','#953884','#5f3a87','#47b8b7','#f15e76','#d7473e','#7f759e','#5a598f','#7a8fa6','#547f86','#3e61c2','#449acd','#ee7051','#f69f4b','#d77440']
@@ -731,7 +730,7 @@ class taxonomyViz
 		# 1 get data ready
 		max_single = 0
 		{ uniqTraitValues, countMatrix } = @getTraitValuesAndCountMatrix(lastTraitName)
-		taxonomy_comb_count_onLayer = @getNumberOfOTUsByTraitValue()
+		numberOfOTUsByTraitValue = @getNumberOfOTUsByTraitValue()
 		vizdata = new Array(uniqTraitValues.length)
 		viz_series = new Array(uniqTraitValues.length)
 
@@ -823,7 +822,7 @@ class taxonomyViz
 			.style({opacity:'0.6',stroke: 'none'})
 			.on 'mouseover', (d, i) ->
 				d3.select(this).style({opacity:'1', stroke: '#000', 'stroke-width': '3' })
-				tooltip.html( "<img class = 'PanelImg' src='css/images/tooltip.png'><div class = 'PanelHead'>TAXONOMY:<br/><em>" + d.name + "</em></div><div class = 'PanelHead'><div class='PanelHalf'>TOTAL READS:<br/><span>" + format(d.value) + "</span></div><div class='PanelHalf'>OTU QUANTITY:<br/><span>" + format(taxonomy_comb_count_onLayer[i]) + "</span></div></div>")
+				tooltip.html( "<img class = 'PanelImg' src='css/images/tooltip.png'><div class = 'PanelHead'>TAXONOMY:<br/><em>" + d.name + "</em></div><div class = 'PanelHead'><div class='PanelHalf'>TOTAL READS:<br/><span>" + format(d.value) + "</span></div><div class='PanelHalf'>OTU QUANTITY:<br/><span>" + format(numberOfOTUsByTraitValue[i]) + "</span></div></div>")
 				tooltip.style( { "visibility": "visible", top: (d3.event.pageY - 20) + "px", left: (d3.event.pageX + 30) + "px" })
 			.on 'mouseout', (d) ->
 				d3.select(this).style({opacity:'0.6',stroke: 'none'})
@@ -882,25 +881,6 @@ class taxonomyViz
 			bubbleRemover.style("visibility",'hidden')
 			if bubbleView then force.resume() 
 			d3.selectAll(".node").transition().style({opacity:'0.7',stroke: 'none'}).attr("cx", (d) -> return d.x).attr("cy", (d) -> return d.y).attr('r', (d) -> return d.radius ).duration(250).ease("quad")
-
-	calculateOTUonLayer: () ->
-		comb_name_list = new Array(unique_taxonomy_comb_onLayer.length)
-		taxonomy_comb_count_onLayer = new Array(unique_taxonomy_comb_onLayer.length);
-		for i in [0..unique_taxonomy_comb_onLayer.length-1]
-			comb_name_list[i] = ""
-			for j in [0..LayerID-2]
-				comb_name_list[i] += unique_taxonomy_comb_onLayer[i][j] + "," 
-			comb_name_list[i] += unique_taxonomy_comb_onLayer[i][LayerID-1]
-			taxonomy_comb_count_onLayer[i] = 0
-
-		for i in [0..unique_taxonomy_comb.length-1] # 1476
-			matchStr = ""
-			for j in [0..LayerID-2]
-				matchStr += unique_taxonomy_comb[i][j] + "," 
-			matchStr += unique_taxonomy_comb[i][LayerID-1]
-			matchInd = comb_name_list.indexOf(matchStr)
-			if matchInd != -1
-				taxonomy_comb_count_onLayer[matchInd] += unique_taxonomy_comb_count[i]
 
 	bubbleFilterControl: () ->
 
