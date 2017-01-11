@@ -360,9 +360,8 @@ class taxonomyViz
 				@drawTraitBar(lastTraitName)
 				@barFilterControl()
 			when 2
-				@calculateOTUonLayer()
-				@bubbleFilterControl()
 				@drawTaxonomyBubble()
+				@bubbleFilterControl()
 			when 3
 				@drawTaxonomySankey()
 			when 4
@@ -731,19 +730,19 @@ class taxonomyViz
 
 		# 1 get data ready
 		max_single = 0
-		vizdata = new Array(unique_taxonomy_comb_onLayer.length)
-		viz_series = new Array(unique_taxonomy_comb_onLayer.length)
-		comb_name_list = new Array(unique_taxonomy_comb_onLayer.length)
+		{ uniqTraitValues, countMatrix } = @getTraitValuesAndCountMatrix(lastTraitName)
+		taxonomy_comb_count_onLayer = @getNumberOfOTUsByTraitValue()
+		vizdata = new Array(uniqTraitValues.length)
+		viz_series = new Array(uniqTraitValues.length)
 
-		for i in [0..new_data_matrix_onLayer.length-1]
+		for i in [0..countMatrix.length-1]
 			vizdata[i] = 0 # 1 add up only selected samples
 			viz_series[i] = new Array(selected_samples.length)
-			comb_name_list[i] = unique_taxonomy_comb_onLayer[i].join(",")
 			
 			for j in [0..selected_samples.length-1]
-				if new_data_matrix_onLayer[i][ selected_samples[j] ]?
-					vizdata[i] += new_data_matrix_onLayer[i][ selected_samples[j] ]
-					viz_series[i][j] = new_data_matrix_onLayer[i][ selected_samples[j] ]
+				if countMatrix[i][ selected_samples[j] ]?
+					vizdata[i] += countMatrix[i][ selected_samples[j] ]
+					viz_series[i][j] = countMatrix[i][ selected_samples[j] ]
 					if viz_series[i][j] > max_single 
 						max_single = viz_series[i][j]
 
@@ -788,9 +787,9 @@ class taxonomyViz
 
 		# 4 draw circles
 		nodes = []
-		for i in [0..new_data_matrix_onLayer.length-1]
+		for i in [0..uniqTraitValues.length-1]
 			if vizdata[i] > adjust_min and vizdata[i] < adjust_max
-				nodes.push({id: i, radius: radius_scale( vizdata[i] ), value: vizdata[i], name: comb_name_list[i], x: Math.random() * width, y: Math.random() * height })
+				nodes.push({id: i, radius: radius_scale( vizdata[i] ), value: vizdata[i], name: uniqTraitValues[i], x: Math.random() * width, y: Math.random() * height })
 
 		if bubbleView
 			force = d3.layout.force()
@@ -885,7 +884,6 @@ class taxonomyViz
 			d3.selectAll(".node").transition().style({opacity:'0.7',stroke: 'none'}).attr("cx", (d) -> return d.x).attr("cy", (d) -> return d.y).attr('r', (d) -> return d.radius ).duration(250).ease("quad")
 
 	calculateOTUonLayer: () ->
-
 		comb_name_list = new Array(unique_taxonomy_comb_onLayer.length)
 		taxonomy_comb_count_onLayer = new Array(unique_taxonomy_comb_onLayer.length);
 		for i in [0..unique_taxonomy_comb_onLayer.length-1]
@@ -908,9 +906,7 @@ class taxonomyViz
 
 		that = this  # important!! to call the functions 
 		searchList = []
-		availableTags = new Array(unique_taxonomy_comb_onLayer.length)
-		for i in [0..unique_taxonomy_comb_onLayer.length-1]  # layer 2 - 68 
-			availableTags[i] = unique_taxonomy_comb_onLayer[i].join(",")
+		availableTags = uniqTraitValues
 
 		$('#tags').keydown () -> if $('#tags').val().length < 4 then $('#autoCompleteList').fadeOut(200)
 		$('#autoCompleteList').fadeOut(800);
@@ -1703,6 +1699,32 @@ class taxonomyViz
 				for j in [0..rowData.length-1]
 					_countMatrix[traitIndex][j] += rowData[j]
 		return {'uniqTraitValues': _uniqTraitValues, 'countMatrix': _countMatrix}
+		
+	getNumberOfOTUsByTraitValue: () ->
+		numberOfOTUsByTraitValue = []
+		if lastTraitName.toLowerCase() == 'taxonomy'
+			comb_name_list = new Array(unique_taxonomy_comb_onLayer.length)
+			numberOfOTUsByTraitValue = new Array(unique_taxonomy_comb_onLayer.length);
+			for i in [0..unique_taxonomy_comb_onLayer.length-1]
+				comb_name_list[i] = ""
+				for j in [0..LayerID-2]
+					comb_name_list[i] += unique_taxonomy_comb_onLayer[i][j] + ","
+				comb_name_list[i] += unique_taxonomy_comb_onLayer[i][LayerID-1]
+				numberOfOTUsByTraitValue[i] = 0
+
+			for i in [0..unique_taxonomy_comb.length-1] # 1476
+				matchStr = ""
+				for j in [0..LayerID-2]
+					matchStr += unique_taxonomy_comb[i][j] + ","
+				matchStr += unique_taxonomy_comb[i][LayerID-1]
+				matchInd = comb_name_list.indexOf(matchStr)
+				if matchInd != -1
+					numberOfOTUsByTraitValue[matchInd] += unique_taxonomy_comb_count[i]
+		else
+			_traitValues = biom.getMetadata({'dimension': 'rows', 'attribute': lastTraitName})
+			_traitCounts = _.countBy(_traitValues)
+			numberOfOTUsByTraitValue = uniqTraitValues.map((value) -> _traitCounts[value])
+		return numberOfOTUsByTraitValue
 
 	createLegend: (legendArr) ->
 		legendArr.sort( (a,b) -> return b.value - a.value ) # specify the sorting order
