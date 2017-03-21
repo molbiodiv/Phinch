@@ -1794,7 +1794,7 @@ class taxonomyViz
 			$('#downloadFile i').addClass('icon-download')
 
 		)
-		w.postMessage({"o1": JSON.stringify(biom), "o2": JSON.stringify(obj_log), "filename": filename})
+		w.postMessage({"o1": biom.toString(), "o2": JSON.stringify(obj_log), "filename": filename})
 
 	shareViz: () =>
 		biomData = JSON.stringify(biom)
