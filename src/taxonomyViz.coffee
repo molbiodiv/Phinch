@@ -1671,6 +1671,15 @@ class taxonomyViz
 		else
 			selected_samples_clone = selected_samples.slice(0);
 			traitValues = biom.getMetadata({dimension: 'rows', attribute: traitName})
+			if(@isTraitNumeric(traitValues))
+				min = _.min(traitValues)
+				max = _.max(traitValues)
+				quantize = d3.scale.quantize().domain([min, max]).range([1..10])
+				invExt = []
+				for i in [1..10]
+					invExt.push(quantize.invertExtent(i).toString())
+				quantize.range(invExt)
+				traitValues = traitValues.map((x) -> if(x==null) then null else quantize(x))
 			_uniqTraitValues = _.uniq(traitValues)
 			_countMatrix = new Array(_uniqTraitValues.length).fill().map(() -> new Array(selected_samples_clone.length).fill(0))
 			rawMatrix = biom.getDataMatrix()
@@ -1680,6 +1689,12 @@ class taxonomyViz
 				for j in [0..rowData.length-1]
 					_countMatrix[traitIndex][j] += rowData[j]
 		return {'uniqTraitValues': _uniqTraitValues, 'countMatrix': _countMatrix}
+		
+	isTraitNumeric: (traitValues) ->
+		for v in traitValues
+			if(isNaN(v))
+				return false
+		return true
 		
 	getNumberOfOTUsByTraitValue: () ->
 		numberOfOTUsByTraitValue = []
