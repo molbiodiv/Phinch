@@ -510,6 +510,36 @@ class taxonomyViz
 		margin = {top: 75, right: 20, bottom: 20, left: 100}
 		x = d3.scale.ordinal().domain(vizdata[0].map( (d) -> return d.vizColInd )).rangeRoundBands([0, height - margin.top - margin.bottom])
 		y = d3.scale.linear().domain([0, max_single ]).range([0, width - margin.right - margin.left - 50])
+
+		data = []
+
+		leafsize = biom.getMetadata({dimension: 'rows', attribute: 'Leaf size'})
+		for i in [0..leafsize.length-1]
+			if leafsize[i] != null
+				rowId = biom.rows[i].id
+				dataRow = biom.getDataRow(rowId)
+				mappedDataRow = dataRow.map ((elem, id) ->
+					if elem != 0 then {"sample": biom.columns[id].id, "value": leafsize[i], "name": rowId} else null
+				)
+				filteredMappedDataRow = mappedDataRow.filter((elem) ->
+					elem != null
+				)
+				data = data.concat(filteredMappedDataRow)
+
+		console.log(data)
+
+
+		visualization = d3plus.viz()
+    	.container("#taxonomy_container")
+    	.data(data)
+			.type({value: "box", mode: "extent"})
+			.id("name")
+			.x("sample")
+			.y("value")
+			.draw()
+
+		return 0
+
 		svg = d3.select("#taxonomy_container").append("svg").attr("width", width).attr("height", height + 100).append("g")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
