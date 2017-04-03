@@ -673,7 +673,7 @@ class taxonomyViz
 
 		that = this
 		searchList = []
-		availableTags = uniqTraitValues
+		availableTags = uniqTraitValues.map((elem) -> if(elem == null) then 'null' else elem)
 
 		$('#tags').keydown () -> if $('#tags').val().length < 4 then $('#autoCompleteList').fadeOut(200)
 		$('#autoCompleteList').fadeOut(200);
@@ -682,7 +682,6 @@ class taxonomyViz
 			source: availableTags,
 			minLength: 3,
 			response: (evt, ui) ->
-				console.log(deleteOTUArr)
 				$('#autoCompleteList').html("");
 				searchList.length = 0
 				if ui.content.length > 0
