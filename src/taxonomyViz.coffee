@@ -1405,8 +1405,8 @@ class taxonomyViz
 		attributes_array = []
 		countEmpty = []
 		for i in [0..selected_samples.length-1]
-			if attributes_array.indexOf( parseFloat( biom.columns[ i ].metadata[cur_attribute].split(" ")[0]) ) == -1 and biom.columns[ i ].metadata[cur_attribute] != 'no_data'
-				attributes_array.push( parseFloat( biom.columns[ i ].metadata[cur_attribute].split(" ")[0]) )
+			if attributes_array.indexOf( parseFloat( biom.columns[ i ].metadata[cur_attribute].toString().split(" ")[0]) ) == -1 and biom.columns[ i ].metadata[cur_attribute] != 'no_data'
+				attributes_array.push( parseFloat( biom.columns[ i ].metadata[cur_attribute].toString().split(" ")[0]) )
 
 		attributes_array.sort( (a,b) -> return a - b )
 		count = new Array( attributes_array.length)
@@ -1419,12 +1419,12 @@ class taxonomyViz
 			for j in [0..attributes_array.length-1]
 				selected_new_data_matrix_onLayer[i][j] = 0.0
 			for j in [0..selected_samples.length-1]
-				arr_id = attributes_array.indexOf( parseFloat( biom.columns[j].metadata[cur_attribute].split(" ")[0]) )
+				arr_id = attributes_array.indexOf( parseFloat( biom.columns[j].metadata[cur_attribute].toString().split(" ")[0]) )
 				selected_new_data_matrix_onLayer[i][arr_id] += countMatrix[i][j]
 
 		for i in [0..selected_samples.length-1]
-			if ! isNaN( parseFloat( biom.columns[ i ].metadata[cur_attribute].split(" ")[0]) )
-				count[ attributes_array.indexOf( parseFloat( biom.columns[ i ].metadata[cur_attribute].split(" ")[0]) ) ].push(i)
+			if ! isNaN( parseFloat( biom.columns[ i ].metadata[cur_attribute].toString().split(" ")[0]) )
+				count[ attributes_array.indexOf( parseFloat( biom.columns[ i ].metadata[cur_attribute].toString().split(" ")[0]) ) ].push(i)
 			else 
 				countEmpty.push(i)
 
