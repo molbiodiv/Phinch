@@ -37,7 +37,7 @@
 #layerSwitch { font-family: 'Karla', sans-serif; display: none;  width: 802px; height: 36px; margin: -90px 0px 0px 20px;}
 .rectLayer { float: left; padding: 0 10px; height: 33px; line-height: 33px; color: #c2c4c6; z-index: 3;}
 .rectLayer:hover { cursor: pointer; color: #fff; background-color: #241f20; -webkit-transition:.4s; -moz-transition:.4s; -o-transition:.4s; transition:.4s;}
-.cntline {width: 35px; height: 2px; float: left; background-color: #c2c4c6; border-top: 16px solid #fff; border-bottom: 15px solid #fff;}
+.cntline {width: 35px; height: 2px; float: left; background-color: #c2c4c6; margin-top: 16px;}
 .selectedLayer {color: #241f20; font-weight: 700;}
 .selectedLine { background-color: #241f20;}
 
