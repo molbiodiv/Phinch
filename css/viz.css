@@ -2,7 +2,7 @@
 /* Top Section */
 #graphNameCont {width: 100%; height: 100px;}
 #goBackFilter { float: left; margin: 23px 0 0 20px; width: 188px; height: 40px; border: none; background-image: url('images/left_arrow.png'); background-size: 100% 40px;}
-#goBackGallery { width: 204px; border: none; background-image: url('images/left_arrow.png'); background-repeat: no-repeat; background-size: 100% 40px;}
+#goBackGallery { width: 204px; border: none; background-image: url('images/left_arrow.png'); background-repeat: no-repeat; background-size: 100% 40px; background-color: transparent;}
 
 .col3 { float: left; width: 31%;  height: auto; min-height: 250px; margin: 0% 10px 2% 10px; border: 2px solid #241f20; font-size: 16px; color: #000;}
 .col3:hover { cursor: pointer; border: 2px solid #241f20; background-color: #241f20; color: #fff; -webkit-transition:.4s; -moz-transition:.4s; -o-transition:.4s; transition:.4s;}

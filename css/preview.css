@@ -1,5 +1,6 @@
 
-#goGallery { width: 225px; border: none; background-image: url('images/right_arrow.png'); background-size: 100% 40px;}
+#goGallery { width: 225px; border: none; background-image: url('images/right_arrow.png'); background-size: 100% 40px;
+    background-color: transparent;}
 #bottom_sec { width: 100%; margin: 0px 10px;}
 #left_control_panel { font-family: 'Karla', sans-serif; width: 320px; float: left; margin: 10px 0px 30px 10px;}
 #right_live_panel { font-family: 'Karla', sans-serif; float: right; min-width: 600px; width: calc(100% - 400px); margin: 10px 40px 30px 30px;	}
