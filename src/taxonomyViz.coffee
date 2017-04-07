@@ -1671,11 +1671,12 @@ class taxonomyViz
 			selected_samples_clone = selected_samples.slice(0);
 			traitValues = biom.getMetadata({dimension: 'rows', attribute: traitName})
 			if(@isTraitNumeric(traitValues))
+				nBins = 25
 				min = _.min(traitValues)
 				max = _.max(traitValues)
-				quantize = d3.scale.quantize().domain([min, max]).range([1..10])
+				quantize = d3.scale.quantize().domain([min, max]).range([1..nBins])
 				invExt = []
-				for i in [1..10]
+				for i in [1..nBins]
 					invExt.push(quantize.invertExtent(i).toString())
 				quantize.range(invExt)
 				traitValues = traitValues.map((x) -> if(x==null) then null else quantize(x))
