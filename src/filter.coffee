@@ -110,7 +110,7 @@ class filter
 			else if (key.toLowerCase().indexOf("barcode") != -1) || (key.toLowerCase().indexOf("sequence") != -1) || (key.toLowerCase().indexOf("reverse") != -1) || (key.toLowerCase() == "internalcode") || (key.toLowerCase() == "description") || (key.toLowerCase().indexOf("adapter") !=-1)
 				no_data_attributes_array.push(key)
 		
-			else if !isNaN(biom.columns[0].metadata[key].split(" ")[0].replace(",","")) || biom.columns[0].metadata[key] == "no_data" 
+			else if typeof biom.columns[0].metadata[key]=="string" and (!isNaN(biom.columns[0].metadata[key].split(" ")[0].replace(",","")) || biom.columns[0].metadata[key] == "no_data")
 				idential_elements_in_array_flag = false
 
 				for i in [0..attr_length]
@@ -494,7 +494,7 @@ class filter
 			for i in [0..selected_range_array.length-1] 
 				key = @selected_attributes_array[i]
 				for r in [0..biom.shape[1]-1]
-					if biom.columns[r].metadata[key].split(" ")[0] < selected_range_array[i][0] || biom.columns[r].metadata[key].split(" ")[0] > selected_range_array[i][1]
+					if typeof biom.columns[r].metadata[key] == 'string' and (biom.columns[r].metadata[key].split(" ")[0] < selected_range_array[i][0] || biom.columns[r].metadata[key].split(" ")[0] > selected_range_array[i][1])
 						delete_index = @selected_sample.indexOf(r) 
 						if delete_index != -1 then @selected_sample.splice(delete_index,1)
 		
