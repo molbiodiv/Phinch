@@ -366,18 +366,18 @@ class taxonomyViz
 			when 3
 				@drawTaxonomySankey()
 			when 4
-				if groupable.length > 1 
+				if groupable.length >= 1
 					for i in [0..groupable.length-1]
 						$('#attributes_dropdown').append('<option>' + groupable[i] + '</option>');
 					if $('#attributes_dropdown option:first').text() != undefined 
 						@drawTaxonomyDonuts( $('#attributes_dropdown').find(":selected").text() )
 					else
 						@drawTaxonomyDonuts( groupable[0] )
-					$('#attributes_dropdown').fadeIn(800)
+					$('#attributes_dropdown_wrapper').fadeIn(800)
 					$('#attributes_dropdown').change (evt) =>
 						@drawTaxonomyDonuts(evt.currentTarget.value)
-				else if groupable.length == 1
-					$('#attributes_dropdown').hide()
+				else if groupable.length == 0
+					$('#attributes_dropdown_wrapper').hide()
 					@drawTaxonomyDonuts( groupable[0] )
 				else 
 					alert("Donut partition chart not available for this dataset!")
@@ -1756,7 +1756,7 @@ class taxonomyViz
 		$('#loadingIcon').animate( {opacity: 0}, {duration: fadeInSpeed, specialEasing: {width: "easeInOutQuad"}, complete: () ->
 			$('#taxonomy_container').animate( {opacity: 1}, {duration: fadeInSpeed} )
 			$('#layerSwitch').fadeIn(fadeInSpeed)
-			$('#trait_dropdown').fadeIn(fadeInSpeed)
+			$('#trait_dropdown_wrapper').fadeIn(fadeInSpeed)
 
 			switch VizID
 				when 1
@@ -1767,7 +1767,7 @@ class taxonomyViz
 					$('.ui-slider-horizontal .ui-slider-handle').css({ "margin-top": "-2px", "border": "none","background": "#241F20"})
 				when 3
 					$('#tags').fadeIn(fadeInSpeed)
-					$('#trait_dropdown').hide()
+					$('#trait_dropdown_wrapper').hide()
 					$('#MsgBox').html( "* " + unique_taxonomy_comb_count.length + " unique paths, cannot go deeper to the 6th or 7th layer.")
 				when 5 
 					$('#PercentValue,#legend_header,#count_header').fadeIn(fadeInSpeed)

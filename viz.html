@@ -82,8 +82,17 @@
         <a href="viz.html"><button id="goBackGallery" class="orange_btn">BACK TO GALLERY</button></a>
 
         <p id = "file_details"></p>
-        <select id = "attributes_dropdown" style="display: none;"></select>
-        <select id = "trait_dropdown" style="display: none;"></select>
+        <div id="attributes_dropdown_label" style="position: absolute; left: 20px; top: 135px;">
+            <div id="trait_dropdown_wrapper" style="float: left; display: none;">
+                OTU Trait:
+                <select id ="trait_dropdown"></select>
+            </div>
+            <div id="attributes_dropdown_wrapper" style="float: left; margin-left: 20px; display: none;">
+                Sample Trait:
+                <select id ="attributes_dropdown"></select>
+            </div>
+        </div>
+
 
     </section>
 
