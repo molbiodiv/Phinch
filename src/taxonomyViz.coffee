@@ -386,7 +386,8 @@ class taxonomyViz
 					$('#attributes_dropdown').html("")
 					for i in [0..selected_attributes_array.length-1]
 						$('#attributes_dropdown').append('<option>' + selected_attributes_array[i] + '</option>');
-					if $('#attributes_dropdown option:first').text() != undefined 
+					$('#attributes_dropdown_wrapper').fadeIn(800)
+					if $('#attributes_dropdown option:first').text() != undefined
 						@drawTaxonomyByAttributes($('#attributes_dropdown').find(":selected").text() )
 					else
 						@drawTaxonomyByAttributes(selected_attributes_array[0] )
