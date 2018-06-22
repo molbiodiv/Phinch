@@ -79,7 +79,7 @@ class init
 					else
 						$('#loadingIcon').css('opacity','1')
 						$('#goBackFilter').fadeOut(200)
-						title = $(this).find('p').text()
+						title = $(this).find('p').find('b').text()
 						$('#GraphGallery').fadeOut(300, () -> 
 							$('#up_sec').fadeIn(300); 
 							$('.pageName').html(title).css('margin-top','-74px'); # 1 change the big title 
